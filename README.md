@@ -95,4 +95,4 @@ This example's concrete emphasis is recomputing totals in integer cents, exact d
 - [ ] Before future changes, repeat the synthetic-data and commit-identity privacy review.
 - [ ] Before proposing upstream work, review related work, contribution scope, licensing, and repository requirements.
 
-`private: true` prevents accidental npm publication of this package; it is not an access-control mechanism. No software license has been selected. Public source availability is not a claim of permissive licensing.
+`private: true` prevents accidental npm publication of this package; it is not an access-control mechanism. This repository is licensed under the [MIT License](LICENSE).

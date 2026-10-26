@@ -2,6 +2,7 @@
   "name": "evidence-reliability-eval",
   "version": "0.1.0",
   "private": true,
+  "license": "MIT",
   "type": "module",
   "description": "Offline synthetic evidence-consistency assertion example",
   "scripts": {
