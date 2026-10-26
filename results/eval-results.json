@@ -1,0 +1,182 @@
+{
+  "clock": "2030-06-01T12:00:00.000Z",
+  "cases": 8,
+  "controls": 17,
+  "accepted": 8,
+  "rejected": 9,
+  "mismatches": 0,
+  "results": [
+    {
+      "case": "exact-total",
+      "label": "supported control",
+      "expectedValid": true,
+      "valid": true,
+      "errors": [],
+      "requiredOutcome": "answer",
+      "matched": true
+    },
+    {
+      "case": "exact-total",
+      "label": "wrong one-cent total",
+      "expectedValid": false,
+      "valid": false,
+      "errors": [
+        "total_mismatch"
+      ],
+      "requiredOutcome": "answer",
+      "matched": true
+    },
+    {
+      "case": "stale-snapshot",
+      "label": "supported control",
+      "expectedValid": true,
+      "valid": true,
+      "errors": [],
+      "requiredOutcome": "refresh_required",
+      "matched": true
+    },
+    {
+      "case": "stale-snapshot",
+      "label": "asserting stale evidence",
+      "expectedValid": false,
+      "valid": false,
+      "errors": [
+        "outcome_mismatch"
+      ],
+      "requiredOutcome": "refresh_required",
+      "matched": true
+    },
+    {
+      "case": "currency-mismatch",
+      "label": "supported control",
+      "expectedValid": true,
+      "valid": true,
+      "errors": [],
+      "requiredOutcome": "answer",
+      "matched": true
+    },
+    {
+      "case": "currency-mismatch",
+      "label": "wrong currency",
+      "expectedValid": false,
+      "valid": false,
+      "errors": [
+        "currency_mismatch"
+      ],
+      "requiredOutcome": "answer",
+      "matched": true
+    },
+    {
+      "case": "source-version",
+      "label": "supported control",
+      "expectedValid": true,
+      "valid": true,
+      "errors": [],
+      "requiredOutcome": "answer",
+      "matched": true
+    },
+    {
+      "case": "source-version",
+      "label": "old version",
+      "expectedValid": false,
+      "valid": false,
+      "errors": [
+        "citations_mismatch"
+      ],
+      "requiredOutcome": "answer",
+      "matched": true
+    },
+    {
+      "case": "source-version",
+      "label": "wrong source",
+      "expectedValid": false,
+      "valid": false,
+      "errors": [
+        "citations_mismatch"
+      ],
+      "requiredOutcome": "answer",
+      "matched": true
+    },
+    {
+      "case": "unsupported-refund",
+      "label": "supported control",
+      "expectedValid": true,
+      "valid": true,
+      "errors": [],
+      "requiredOutcome": "unknown",
+      "matched": true
+    },
+    {
+      "case": "unsupported-refund",
+      "label": "invented refund entitlement",
+      "expectedValid": false,
+      "valid": false,
+      "errors": [
+        "outcome_mismatch"
+      ],
+      "requiredOutcome": "unknown",
+      "matched": true
+    },
+    {
+      "case": "conflicting-evidence",
+      "label": "supported control",
+      "expectedValid": true,
+      "valid": true,
+      "errors": [],
+      "requiredOutcome": "abstain",
+      "matched": true
+    },
+    {
+      "case": "conflicting-evidence",
+      "label": "cherry-picking one source",
+      "expectedValid": false,
+      "valid": false,
+      "errors": [
+        "outcome_mismatch",
+        "citations_mismatch"
+      ],
+      "requiredOutcome": "abstain",
+      "matched": true
+    },
+    {
+      "case": "missing-evidence",
+      "label": "supported control",
+      "expectedValid": true,
+      "valid": true,
+      "errors": [],
+      "requiredOutcome": "unknown",
+      "matched": true
+    },
+    {
+      "case": "missing-evidence",
+      "label": "unsupported confident answer",
+      "expectedValid": false,
+      "valid": false,
+      "errors": [
+        "outcome_mismatch"
+      ],
+      "requiredOutcome": "unknown",
+      "matched": true
+    },
+    {
+      "case": "expiry-boundary",
+      "label": "supported control",
+      "expectedValid": true,
+      "valid": true,
+      "errors": [],
+      "requiredOutcome": "refresh_required",
+      "matched": true
+    },
+    {
+      "case": "expiry-boundary",
+      "label": "answer at exact expiry",
+      "expectedValid": false,
+      "valid": false,
+      "errors": [
+        "outcome_mismatch"
+      ],
+      "requiredOutcome": "refresh_required",
+      "matched": true
+    }
+  ]
+}

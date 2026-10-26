@@ -1,0 +1,13 @@
+{
+  "name": "evidence-reliability-eval",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Offline synthetic evidence-consistency assertion example",
+  "scripts": {
+    "eval": "node src/run.js",
+    "test": "node --test",
+    "check": "node --test && node src/run.js"
+  },
+  "engines": { "node": ">=22" }
+}

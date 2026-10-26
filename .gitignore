@@ -1,0 +1,9 @@
+node_modules/
+delivery/
+.delivery-tools/
+results/*.tap
+results/check-output.txt
+results/verification.json
+publication-check-output.txt
+.DS_Store
+Thumbs.db
