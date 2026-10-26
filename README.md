@@ -23,6 +23,21 @@ Both commands exit with code 0 on success. The eval exits with code 1 if any act
 
 Actual verification on 2026-10-26, Node.js v24.15.0: **71 tests passed, 0 failed, 0 skipped**; eval: **8 scenarios, 17 controls, 8 accepted, 9 rejected as intended, 0 mismatches**. See `results/eval-results.json` for every candidate decision. Test timings vary and are not versioned; the eval JSON is deterministic.
 
+Actual summary from `npm run eval` (per-control results omitted):
+
+```json
+{
+  "clock": "2030-06-01T12:00:00.000Z",
+  "cases": 8,
+  "controls": 17,
+  "accepted": 8,
+  "rejected": 9,
+  "mismatches": 0
+}
+```
+
+The nine rejected controls are deliberately inconsistent responses correctly rejected by the assertions. Zero mismatches means all controls behaved as expected; these are not test failures or a model-quality benchmark. No model was evaluated.
+
 ## Eight synthetic scenarios
 
 | Scenario | Supported response | Deliberately rejected response |
