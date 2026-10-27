@@ -1,0 +1,28 @@
+{
+  "evidence": [
+    {
+      "subject": "sample-item",
+      "source": "catalog-a",
+      "version": "v3",
+      "observedAt": "2030-06-01T11:30:00.000Z",
+      "expiresAt": "2030-06-01T12:30:00.000Z",
+      "currency": "USD",
+      "lines": [
+        { "unitPrice": "0.10", "quantity": 3 },
+        { "unitPrice": "0.20", "quantity": 1 }
+      ],
+      "refund": "denied"
+    }
+  ],
+  "candidate": {
+    "outcome": "answer",
+    "citations": [{ "source": "catalog-a", "version": "v3" }],
+    "total": "0.50",
+    "currency": "USD",
+    "refund": "denied"
+  },
+  "options": {
+    "now": "2030-06-01T12:00:00.000Z",
+    "subject": "sample-item"
+  }
+}

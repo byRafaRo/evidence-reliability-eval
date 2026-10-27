@@ -1,6 +1,6 @@
 # Evidence Reliability Eval
 
-An offline learning prototype for checking whether **precomputed structured responses** agree with declared synthetic evidence. It makes no model calls and measures no real model's quality. There are eight scenarios and 17 response controls: eight supported responses and nine deliberately inconsistent responses.
+An offline learning prototype for checking whether **precomputed structured responses** agree with declared synthetic evidence. It makes no model calls and measures no real model's quality. The bundled suite contains eight scenarios and 17 response controls: eight supported responses and nine deliberately inconsistent responses.
 
 The focused core recomputes exact monetary totals from line items, checks currency-code equality, and enforces quote expiry against a fixed UTC clock. Source/version binding and conservative uncertainty outcomes support those checks. No framework integration is claimed or required.
 
@@ -21,7 +21,7 @@ npm run eval
 
 Both commands exit with code 0 on success. The eval exits with code 1 if any actual validity/error-code result differs from its declared expectation. Intentionally rejected candidates are expected eval outcomes; they are **not unit-test failures**. A test deliberately mislabels a control to prove that the harness detects a mismatch.
 
-Actual verification on 2026-10-26, Node.js v24.15.0: **71 tests passed, 0 failed, 0 skipped**; eval: **8 scenarios, 17 controls, 8 accepted, 9 rejected as intended, 0 mismatches**. See `results/eval-results.json` for every candidate decision. Test timings vary and are not versioned; the eval JSON is deterministic.
+Actual verification on 2026-10-27, Node.js v24.15.0: **77 tests passed, 0 failed, 0 skipped**, including six CLI regression tests; bundled eval: **8 scenarios, 17 controls, 8 accepted, 9 rejected as intended, 0 mismatches**. See `results/eval-results.json` for every candidate decision. Test timings vary and are not versioned; the eval JSON is deterministic.
 
 Actual summary from `npm run eval` (per-control results omitted):
 
@@ -37,6 +37,38 @@ Actual summary from `npm run eval` (per-control results omitted):
 ```
 
 The nine rejected controls are deliberately inconsistent responses correctly rejected by the assertions. Zero mismatches means all controls behaved as expected; these are not test failures or a model-quality benchmark. No model was evaluated.
+
+## Check your own synthetic JSON
+
+Copy and edit [examples/answer.json](examples/answer.json), then pass your file to:
+
+```sh
+npm run evaluate -- examples/answer.json
+```
+
+The example exits with code 0 and prints:
+
+```json
+{
+  "valid": true,
+  "errors": [],
+  "requiredOutcome": "answer"
+}
+```
+
+For example, change the candidate's `total` from `"0.50"` to `"0.51"`: the command returns `total_mismatch` and exits with code 1. This command checks the supplied response directly; it does not accept expected-error labels that turn a rejected response into a successful check.
+
+| Exit | Meaning | JSON output stream |
+| --- | --- | --- |
+| 0 | Response is consistent with the declared evidence | stdout |
+| 1 | Input is well formed, but the response is inconsistent | stdout |
+| 2 | Invalid arguments, unreadable/oversized input, invalid UTF-8/JSON, or schema errors | stderr |
+
+The top-level object requires `evidence` and `candidate`, and permits only one optional field, `options`. Their schemas and conservative outcome rules are described in [Contract and policy](#contract-and-policy). `options` may supply an explicit UTC `now` and requested `subject`; otherwise the fixed clock and `sample-item` subject apply. Keep monetary values as strings, not JSON numbers. Missing or extra fields and invalid values fail closed.
+
+The input limit is **1 MiB (1,048,576 UTF-8 bytes)**. Only regular files or standard input are supported; input is read without modification. Pass `-` instead of a file path to read from standard input until EOF. Use `node src/evaluate-input.js <path>` directly when a script needs JSON without npm's command headers. Error reports contain stable codes and do not echo input contents or file paths. Run `node src/evaluate-input.js --help` for usage.
+
+This remains an offline consistency checker for synthetic structured data. It does not call a model or verify upstream source truth. The bundled eval's expected rejections and this command's failure exit codes serve different purposes.
 
 ## Eight synthetic scenarios
 
