@@ -56,6 +56,33 @@ test('CLI forwards an explicit subject and expiry clock to the evaluator', () =>
   assert.equal(JSON.parse(accepted.stdout).requiredOutcome, 'refresh_required');
 });
 
+test('CLI requires abstention and complete citations for conflicting current totals', () => {
+  const path = fileURLToPath(new URL('../examples/conflicting-totals.json', import.meta.url));
+  const input = JSON.parse(readFileSync(path, 'utf8'));
+  const accepted = invoke([path]);
+  assert.equal(accepted.status, 0);
+  assert.equal(accepted.stderr, '');
+  assert.deepEqual(JSON.parse(accepted.stdout), { valid: true, errors: [], requiredOutcome: 'abstain' });
+
+  // Keep both citations: answering from the first source must fail on outcome alone.
+  const answer = { ...input.candidate, outcome: 'answer', total: '0.50', currency: 'USD', refund: 'denied' };
+  const pickedOneTotal = invoke(['-'], JSON.stringify({ ...input, candidate: answer }));
+  assert.equal(pickedOneTotal.status, 1);
+  assert.equal(pickedOneTotal.stderr, '');
+  assert.deepEqual(JSON.parse(pickedOneTotal.stdout), {
+    valid: false, errors: ['outcome_mismatch'], requiredOutcome: 'abstain'
+  });
+
+  // Keep abstention: omitting a source must fail on citation completeness alone.
+  input.candidate.citations = input.candidate.citations.slice(0, 1);
+  const omittedSource = invoke(['-'], JSON.stringify(input));
+  assert.equal(omittedSource.status, 1);
+  assert.equal(omittedSource.stderr, '');
+  assert.deepEqual(JSON.parse(omittedSource.stdout), {
+    valid: false, errors: ['citations_mismatch'], requiredOutcome: 'abstain'
+  });
+});
+
 test('CLI rejects malformed encoding, JSON, envelope, and evaluator inputs with exit 2', () => {
   const invalidCandidate = example();
   invalidCandidate.candidate.total = 0.5;
