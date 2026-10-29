@@ -83,6 +83,40 @@ test('CLI requires abstention and complete citations for conflicting current tot
   });
 });
 
+test('CLI supports EUR answers and abstains on equal totals with conflicting source currencies', () => {
+  const path = fileURLToPath(new URL('../examples/eur-answer.json', import.meta.url));
+  const input = JSON.parse(readFileSync(path, 'utf8'));
+  const accepted = invoke([path]);
+  assert.equal(accepted.status, 0);
+  assert.equal(accepted.stderr, '');
+  assert.deepEqual(JSON.parse(accepted.stdout), { valid: true, errors: [], requiredOutcome: 'answer' });
+
+  // A valid currency code is still wrong when it contradicts agreed EUR evidence.
+  const wrongCode = invoke(['-'], JSON.stringify({
+    ...input, candidate: { ...input.candidate, currency: 'USD' }
+  }));
+  assert.equal(wrongCode.status, 1);
+  assert.equal(wrongCode.stderr, '');
+  assert.deepEqual(JSON.parse(wrongCode.stdout), {
+    valid: false, errors: ['currency_mismatch'], requiredOutcome: 'answer'
+  });
+
+  // Change only one source's code: time, integer totals, refund, and citations agree.
+  input.evidence[1].currency = 'USD';
+  const conflictingCodes = invoke(['-'], JSON.stringify(input));
+  assert.equal(conflictingCodes.status, 1);
+  assert.equal(conflictingCodes.stderr, '');
+  assert.deepEqual(JSON.parse(conflictingCodes.stdout), {
+    valid: false, errors: ['outcome_mismatch'], requiredOutcome: 'abstain'
+  });
+
+  input.candidate = { ...input.candidate, outcome: 'abstain', total: null, currency: null, refund: null };
+  const abstained = invoke(['-'], JSON.stringify(input));
+  assert.equal(abstained.status, 0);
+  assert.equal(abstained.stderr, '');
+  assert.deepEqual(JSON.parse(abstained.stdout), { valid: true, errors: [], requiredOutcome: 'abstain' });
+});
+
 test('CLI rejects malformed encoding, JSON, envelope, and evaluator inputs with exit 2', () => {
   const invalidCandidate = example();
   invalidCandidate.candidate.total = 0.5;

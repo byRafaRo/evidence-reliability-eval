@@ -21,7 +21,7 @@ npm run eval
 
 Both commands exit with code 0 on success. The eval exits with code 1 if any actual validity/error-code result differs from its declared expectation. Intentionally rejected candidates are expected eval outcomes; they are **not unit-test failures**. A test deliberately mislabels a control to prove that the harness detects a mismatch.
 
-Actual verification on 2026-10-28, Node.js v24.15.0: **78 tests passed, 0 failed, 0 skipped**, including seven CLI regression tests; bundled eval: **8 scenarios, 17 controls, 8 accepted, 9 rejected as intended, 0 mismatches**. See `results/eval-results.json` for every candidate decision. Test timings vary and are not versioned; the eval JSON is deterministic.
+Actual verification on 2026-10-29, Node.js v24.15.0: **79 tests passed, 0 failed, 0 skipped**, including eight CLI regression tests; bundled eval: **8 scenarios, 17 controls, 8 accepted, 9 rejected as intended, 0 mismatches**. See `results/eval-results.json` for every candidate decision. Test timings vary and are not versioned; the eval JSON is deterministic.
 
 Actual summary from `npm run eval` (per-control results omitted):
 
@@ -85,7 +85,7 @@ This remains an offline consistency checker for synthetic structured data. It do
 
 These are assertion controls designed by hand, not an independently sampled benchmark. The nine rejects demonstrate detection of these selected defects, not a statistical reliability score.
 
-For the rule-to-control map, isolated total-conflict example, and honest remaining test gaps, see the [contributor coverage guide](docs/coverage.md).
+For the rule-to-control map, EUR agreement and total-conflict examples, and remaining test gaps, see the [contributor coverage guide](docs/coverage.md).
 
 ## Contract and policy
 
