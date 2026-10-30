@@ -21,7 +21,7 @@ npm run eval
 
 Both commands exit with code 0 on success. The eval exits with code 1 if any actual validity/error-code result differs from its declared expectation. Intentionally rejected candidates are expected eval outcomes; they are **not unit-test failures**. A test deliberately mislabels a control to prove that the harness detects a mismatch.
 
-Actual verification on 2026-10-29, Node.js v24.15.0: **79 tests passed, 0 failed, 0 skipped**, including eight CLI regression tests; bundled eval: **8 scenarios, 17 controls, 8 accepted, 9 rejected as intended, 0 mismatches**. See `results/eval-results.json` for every candidate decision. Test timings vary and are not versioned; the eval JSON is deterministic.
+Actual verification on 2026-10-30, Node.js v24.15.0: **80 tests passed, 0 failed, 0 skipped**, including eight CLI regression tests; bundled eval: **8 scenarios, 17 controls, 8 accepted, 9 rejected as intended, 0 mismatches**. See `results/eval-results.json` for every candidate decision. Test timings vary and are not versioned; the eval JSON is deterministic.
 
 Actual summary from `npm run eval` (per-control results omitted):
 
@@ -67,6 +67,8 @@ For example, change the candidate's `total` from `"0.50"` to `"0.51"`: the comma
 The top-level object requires `evidence` and `candidate`, and permits only one optional field, `options`. Their schemas and conservative outcome rules are described in [Contract and policy](#contract-and-policy). `options` may supply an explicit UTC `now` and requested `subject`; otherwise the fixed clock and `sample-item` subject apply. Keep monetary values as strings, not JSON numbers. Missing or extra fields and invalid values fail closed.
 
 The input limit is **1 MiB (1,048,576 UTF-8 bytes)**. Only regular files or standard input are supported; input is read without modification. Pass `-` instead of a file path to read from standard input until EOF. Use `node src/evaluate-input.js <path>` directly when a script needs JSON without npm's command headers. Error reports contain stable codes and do not echo input contents or file paths. Run `node src/evaluate-input.js --help` for usage.
+
+For error-code recovery steps, schema bounds, and the distinction between exact arithmetic and a representable response total, see [Input limits and error recovery](docs/input-errors.md).
 
 This remains an offline consistency checker for synthetic structured data. It does not call a model or verify upstream source truth. The bundled eval's expected rejections and this command's failure exit codes serve different purposes.
 

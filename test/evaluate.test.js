@@ -51,6 +51,26 @@ test('BigInt retains cents far above Number.MAX_SAFE_INTEGER', () => {
   assert.equal(cents('0.10') * 3n + cents('0.20'), 50n);
 });
 
+test('money representation limits fail closed without rounding', () => {
+  const maximum = '999999999999999999.99';
+  const quote = (unitPrice, quantity = 1) => ({ ...freshQuote(), lines: [{ unitPrice, quantity }] });
+  assert.deepEqual(evaluate([quote(maximum)], response('answer', { total: maximum })), {
+    valid: true, errors: [], requiredOutcome: 'answer'
+  });
+  assert.deepEqual(evaluate([quote('1000000000000000000.00')], response()), {
+    valid: false, errors: ['invalid_evidence'], requiredOutcome: null
+  });
+  assert.deepEqual(evaluate([quote(maximum)], response('answer', { total: '1000000000000000000.00' })), {
+    valid: false, errors: ['invalid_candidate'], requiredOutcome: null
+  });
+  assert.deepEqual(evaluate([quote(maximum, 2)], response('answer', { total: '1999999999999999999.98' })), {
+    valid: false, errors: ['invalid_candidate'], requiredOutcome: null
+  });
+  assert.deepEqual(evaluate([quote(maximum, 2)], response('answer', { total: maximum })), {
+    valid: false, errors: ['total_mismatch'], requiredOutcome: 'answer'
+  });
+});
+
 test('zero price is valid', () => {
   const quote = { ...freshQuote(), lines: [{ unitPrice: '0.00', quantity: 1 }] };
   assert.equal(evaluate([quote], response('answer', { total: '0.00' })).valid, true);
