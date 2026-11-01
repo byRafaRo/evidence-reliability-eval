@@ -71,7 +71,9 @@ npm run check
 
 Update this map when the checks change. Update `results/eval-results.json` only if the bundled fixture report changes. Expected fixture rejections are successful harness assertions, while an inconsistent user-supplied CLI response exits 1.
 
-`npm run check:docs` guards the marked README summary/answer JSON and the recorded fixture report against current results. The documentation regression deliberately changes counts, an answer, markers, JSON syntax, and the recorded report to verify that drift fails. It does not establish coverage of unmarked examples or prose claims. The full `npm run check` command includes this guard.
+`npm run check:docs` guards the marked README summary, accepted/rejected response JSON, and the recorded fixture report against current results. The documentation regression deliberately changes counts, answers, markers, JSON syntax, and the recorded report to verify that drift fails. It does not establish coverage of unmarked examples or prose claims. The full `npm run check` command includes this guard.
+
+`CLI handled reports omit input payload markers across accepted, rejected and malformed inputs` checks the fixed output contract with a synthetic marker present in valid identifiers, extra fields, and broken JSON. This guards report output only: it does not erase or anonymize input files, shell history, or other programs' logs. The ready-to-run [wrong-total example](../examples/wrong-total.json) demonstrates exit 1 without changing the accepted fixture.
 
 ## Remaining coverage limits
 

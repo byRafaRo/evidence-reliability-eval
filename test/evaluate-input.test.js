@@ -32,14 +32,40 @@ test('CLI accepts the documented JSON file and emits a consistent response', () 
 });
 
 test('CLI stdin rejects an incorrect total with exit 1, distinct from invalid input', () => {
-  const input = example();
-  input.candidate.total = '0.51';
+  const path = fileURLToPath(new URL('../examples/wrong-total.json', import.meta.url));
+  const input = JSON.parse(readFileSync(path, 'utf8'));
   const result = invoke(['-'], JSON.stringify(input));
   assert.equal(result.status, 1);
   assert.equal(result.stderr, '');
   assert.deepEqual(JSON.parse(result.stdout), {
     valid: false, errors: ['total_mismatch'], requiredOutcome: 'answer'
   });
+});
+
+test('CLI handled reports omit input payload markers across accepted, rejected and malformed inputs', () => {
+  const marker = 'SYNTHETIC_INPUT_MARKER_729';
+  const input = example();
+  input.options.subject = marker;
+  input.evidence[0].subject = marker;
+  input.evidence[0].source = marker;
+  input.candidate.citations[0].source = marker;
+  const accepted = { valid: true, errors: [], requiredOutcome: 'answer' };
+  for (const [payload, status, expected] of [
+    [JSON.stringify(input), 0, accepted],
+    [JSON.stringify({ ...input, candidate: { ...input.candidate, total: '0.51' } }), 1,
+      { valid: false, errors: ['total_mismatch'], requiredOutcome: 'answer' }],
+    [JSON.stringify({ ...input, notes: marker }), 2,
+      { valid: false, errors: ['invalid_input'], requiredOutcome: null }],
+    [`{"notes":"${marker}",`, 2,
+      { valid: false, errors: ['invalid_json'], requiredOutcome: null }]
+  ]) {
+    assert.equal(payload.includes(marker), true);
+    const result = invoke(['-'], payload);
+    assert.equal(result.status, status);
+    assert.equal((result.stdout + result.stderr).includes(marker), false);
+    assert.equal(status === 2 ? result.stdout : result.stderr, '');
+    assert.deepEqual(JSON.parse(status === 2 ? result.stderr : result.stdout), expected);
+  }
 });
 
 test('CLI forwards an explicit subject and expiry clock to the evaluator', () => {

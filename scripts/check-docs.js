@@ -5,9 +5,11 @@ import { evaluate } from '../src/evaluate.js';
 import { runCases } from '../src/run.js';
 
 /** Compare declared JSON examples with current results; do not treat prose as tested. */
-export function checkDocumentation(readme, recordedReport, report, answerResult) {
+export function checkDocumentation(readme, recordedReport, report, answerResult, wrongTotalResult) {
   const { results, ...summary } = report;
-  const expected = { 'bundled-summary': summary, 'answer-result': answerResult };
+  const expected = {
+    'bundled-summary': summary, 'answer-result': answerResult, 'wrong-total-result': wrongTotalResult
+  };
   const errors = [];
   for (const [id, value] of Object.entries(expected)) {
     const marker = `<!-- verify:${id} -->`;
@@ -30,9 +32,12 @@ export function checkDocumentation(readme, recordedReport, report, answerResult)
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   try {
     const read = path => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
-    const input = JSON.parse(read('examples/answer.json'));
+    const exampleResult = path => {
+      const input = JSON.parse(read(path));
+      return evaluate(input.evidence, input.candidate, input.options);
+    };
     const result = checkDocumentation(read('README.md'), JSON.parse(read('results/eval-results.json')),
-      runCases(), evaluate(input.evidence, input.candidate, input.options));
+      runCases(), exampleResult('examples/answer.json'), exampleResult('examples/wrong-total.json'));
     console.log(JSON.stringify(result, null, 2));
     process.exitCode = result.valid ? 0 : 1;
   } catch {

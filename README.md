@@ -21,7 +21,7 @@ npm run eval
 
 Both commands exit with code 0 on success. The eval exits with code 1 if any actual validity/error-code result differs from its declared expectation. Intentionally rejected candidates are expected eval outcomes; they are **not unit-test failures**. A test deliberately mislabels a control to prove that the harness detects a mismatch.
 
-Actual verification on 2026-10-31, Node.js v24.15.0: **81 tests passed, 0 failed, 0 skipped**, including eight CLI regression tests; bundled eval: **8 scenarios, 17 controls, 8 accepted, 9 rejected as intended, 0 mismatches**. See `results/eval-results.json` for every candidate decision. Test timings vary; the eval JSON is deterministic. This was local verification on Windows, not a CI or cross-platform run.
+Actual verification on 2026-11-01, Node.js v24.15.0: **82 tests passed, 0 failed, 0 skipped**, including nine CLI regression tests; bundled eval: **8 scenarios, 17 controls, 8 accepted, 9 rejected as intended, 0 mismatches**. See `results/eval-results.json` for every candidate decision. Test timings vary; the eval JSON is deterministic. This was local verification on Windows, not a CI or cross-platform run.
 
 Actual summary from `npm run eval` (per-control results omitted):
 
@@ -60,7 +60,27 @@ The example exits with code 0 and prints:
 }
 ```
 
-For example, change the candidate's `total` from `"0.50"` to `"0.51"`: the command returns `total_mismatch` and exits with code 1. This command checks the supplied response directly; it does not accept expected-error labels that turn a rejected response into a successful check.
+To try a rejection without editing the accepted fixture, run the synthetic [wrong-total example](examples/wrong-total.json):
+
+```sh
+npm run evaluate -- examples/wrong-total.json
+```
+
+This command intentionally exits **1**: the evidence totals USD 0.50, but the candidate claims USD 0.51. It prints:
+
+<!-- verify:wrong-total-result -->
+
+```json
+{
+  "valid": false,
+  "errors": [
+    "total_mismatch"
+  ],
+  "requiredOutcome": "answer"
+}
+```
+
+That rejection is the expected demonstration result. The command checks the supplied response directly; it does not accept expected-error labels that turn an inconsistent response into a successful check. Unlike this example command, the bundled fixture harness exits 0 when every accepted/rejected control matches its expectation.
 
 | Exit | Meaning | JSON output stream |
 | --- | --- | --- |
@@ -76,13 +96,15 @@ For error-code recovery steps, schema bounds, and the distinction between exact 
 
 This remains an offline consistency checker for synthetic structured data. It does not call a model or verify upstream source truth. The bundled eval's expected rejections and this command's failure exit codes serve different purposes.
 
+Use synthetic input only. Handled CLI reports include only validity, fixed error codes, and the required outcome; they do not echo supplied identifiers, amounts, free-form input text, or paths. This is not an anonymizer: input files are not redacted, and shell history or logs from other programs are outside this output contract. Review anything you save or share; never replace a public example with personal or confidential data.
+
 ## Keep documented output reproducible
 
 ```sh
 npm run check:docs
 ```
 
-This offline check compares the two marked JSON examples above with the current bundled summary and the evaluated `examples/answer.json` response. It also checks the full recorded `results/eval-results.json` against a fresh fixture run. It exits 0 on agreement, 1 for drift, missing/duplicate markers, missing code blocks or invalid marked JSON, and 2 if a required source file cannot be read or parsed.
+This offline check compares the three marked JSON examples above with the current bundled summary and the evaluated `examples/answer.json` and `examples/wrong-total.json` responses. It also checks the full recorded `results/eval-results.json` against a fresh fixture run. A correctly documented rejection passes this documentation check. It exits 0 on agreement, 1 for drift, missing/duplicate markers, missing code blocks or invalid marked JSON, and 2 if a required source file cannot be read or parsed.
 
 When results intentionally change, review the behavior first, then update the corresponding example or recorded report. Keep each `<!-- verify:... -->` source marker immediately before its JSON code block. This check validates those declared outputs, not every prose claim, shell command, platform, or model-quality claim. The reported test run is local verification; no CI or cross-platform run is implied.
 
