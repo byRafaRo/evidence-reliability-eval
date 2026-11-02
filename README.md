@@ -125,6 +125,8 @@ These are assertion controls designed by hand, not an independently sampled benc
 
 For the rule-to-control map, EUR agreement and total-conflict examples, and remaining test gaps, see the [contributor coverage guide](docs/coverage.md).
 
+For choosing checks, interpreting failures, reviewing changed artifacts and tracing the original baseline, use the [contributor review workflow](docs/contributor-review.md).
+
 ## Contract and policy
 
 `src/evaluate.js` exports `evaluate(evidence, candidate, options)`. Inputs are plain JSON-shaped data. `fixtures/cases.js` contains all evidence and candidate fixtures; `src/run.js` compares actual results with the expected error lists. `test/evaluate.test.js` exercises controls, boundary conditions, malformed inputs, and harness mismatch detection.
