@@ -4,6 +4,8 @@ An offline learning prototype for checking whether **precomputed structured resp
 
 The focused core recomputes exact monetary totals from line items, checks currency-code equality, and enforces quote expiry against a fixed UTC clock. Source/version binding and conservative uncertainty outcomes support those checks. No framework integration is claimed or required.
 
+See [choosing checks](docs/choosing-checks.md) for the structured-input contract, related-work distinctions, and a runnable comparison immediately before, at and after expiry and maximum age.
+
 ## Run locally
 
 Requires Node.js 22 or later. No package install, dependencies, credentials, APIs, or network access are needed. From the project folder:
