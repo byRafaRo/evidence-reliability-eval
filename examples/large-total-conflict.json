@@ -1,0 +1,41 @@
+{
+  "evidence": [
+    {
+      "subject": "sample-item",
+      "source": "catalog-a",
+      "version": "v3",
+      "observedAt": "2030-06-01T11:30:00.000Z",
+      "expiresAt": "2030-06-01T12:30:00.000Z",
+      "currency": "USD",
+      "lines": [{ "unitPrice": "9007199254740992.00", "quantity": 1 }],
+      "refund": "denied"
+    },
+    {
+      "subject": "sample-item",
+      "source": "catalog-b",
+      "version": "v3",
+      "observedAt": "2030-06-01T11:30:00.000Z",
+      "expiresAt": "2030-06-01T12:30:00.000Z",
+      "currency": "USD",
+      "lines": [
+        { "unitPrice": "4503599627370496.00", "quantity": 2 },
+        { "unitPrice": "0.01", "quantity": 1 }
+      ],
+      "refund": "denied"
+    }
+  ],
+  "candidate": {
+    "outcome": "abstain",
+    "citations": [
+      { "source": "catalog-a", "version": "v3" },
+      { "source": "catalog-b", "version": "v3" }
+    ],
+    "total": null,
+    "currency": null,
+    "refund": null
+  },
+  "options": {
+    "now": "2030-06-01T12:00:00.000Z",
+    "subject": "sample-item"
+  }
+}

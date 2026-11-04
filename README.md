@@ -23,7 +23,7 @@ npm run eval
 
 Both commands exit with code 0 on success. The eval exits with code 1 if any actual validity/error-code result differs from its declared expectation. Intentionally rejected candidates are expected eval outcomes; they are **not unit-test failures**. A test deliberately mislabels a control to prove that the harness detects a mismatch.
 
-Actual verification on 2026-11-01, Node.js v24.15.0: **82 tests passed, 0 failed, 0 skipped**, including nine CLI regression tests; bundled eval: **8 scenarios, 17 controls, 8 accepted, 9 rejected as intended, 0 mismatches**. See `results/eval-results.json` for every candidate decision. Test timings vary; the eval JSON is deterministic. This was local verification on Windows, not a CI or cross-platform run.
+Actual verification on 2026-11-04, Node.js v24.15.0: **83 tests passed, 0 failed, 0 skipped**, including ten CLI regression tests; bundled eval: **8 scenarios, 17 controls, 8 accepted, 9 rejected as intended, 0 mismatches**. See `results/eval-results.json` for every candidate decision. Test timings vary; the eval JSON is deterministic. This was local verification on Windows, not a CI or cross-platform run.
 
 Actual summary from `npm run eval` (per-control results omitted):
 

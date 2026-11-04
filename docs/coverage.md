@@ -9,7 +9,7 @@ The rules live in [evaluate.js](../src/evaluate.js). The eight bundled scenarios
 | Rule | Bundled scenario/control | Focused regression or runnable example |
 | --- | --- | --- |
 | Validate context, evidence, and candidate before selecting an outcome | The bundled controls use valid shapes; they do not demonstrate malformed inputs | Core `fails closed:` matrices cover representative missing fields, extra fields, types, dates, currencies, duplicate identities, and invalid context. The CLI malformed-input matrix checks exit 2 and stderr routing. These are not exhaustive schema boundaries. |
-| Recompute exact totals from line items using integer cents | `exact-total`: accept USD 0.50; reject USD 0.51 | `BigInt retains cents far above Number.MAX_SAFE_INTEGER`; `zero price is valid`; CLI wrong-total regression. `money representation limits fail closed without rounding` covers the maximum money string, the next cent above it, and a computed total beyond the response bound. See [input limits and recovery](input-errors.md). |
+| Recompute exact totals from line items using integer cents | `exact-total`: accept USD 0.50; reject USD 0.51 | `BigInt retains cents far above Number.MAX_SAFE_INTEGER`; `zero price is valid`; CLI wrong-total regression. The [large-total conflict example](../examples/large-total-conflict.json) and its CLI regression preserve a one-cent source difference above safe integer precision and accept agreement from different line decompositions. `money representation limits fail closed without rounding` covers the maximum money string, the next cent above it, and a computed total beyond the response bound. See [input limits and recovery](input-errors.md). |
 | A response must use the evidence's exact supported currency code | `currency-mismatch`: USD evidence with an EUR response is rejected | [eur-answer.json](../examples/eur-answer.json) demonstrates an accepted EUR answer. `CLI supports EUR answers and abstains on equal totals with conflicting source currencies` also isolates a USD response against agreed EUR evidence. Invalid-currency schema checks are separate from valid but mismatched codes. |
 | Timestamp syntax, calendar validity, future observation, and nonempty validity interval | No malformed-date scenario in the bundled suite | Core `fails closed:` date/interval checks and `calendar parsing rejects invalid leap day`. |
 | Age of exactly 60 minutes is valid; older evidence requires refresh | `stale-snapshot`: refresh accepted, stale answer rejected | `exactly maximum age remains valid`; `maximum age plus one millisecond refreshes`; `observation at clock is valid`. |
@@ -39,6 +39,20 @@ The regression then changes one concern at a time:
 2. Abstain correctly but omit the second citation: exit 1 with only `citations_mismatch`.
 
 This closes an isolated total-conflict coverage gap; it does not change the evaluator's policy or fix a claimed arithmetic defect. Matching one source is insufficient when the supplied current evidence conflicts. The evaluator does not rank sources or authenticate them.
+
+## Preserve a one-cent conflict at large totals
+
+```sh
+node src/evaluate-input.js examples/large-total-conflict.json
+```
+
+This synthetic case combines the previously separate large-number arithmetic and source-conflict checks. The first current USD source totals `9007199254740992.00`; the second totals `4503599627370496.00` times two plus `0.01`, or `9007199254740992.01`. Both agree on currency and refund rule. Abstaining with both citations exits 0; choosing either amount while citing both must exit 1 with only `outcome_mismatch`.
+
+These distinct totals collapse to the same value if converted to JavaScript `Number`. The evaluator retains their one-cent difference using integer cents. The CLI regression demonstrates that lossy conversion as a negative example, without using it to calculate expected money values.
+
+The regression also changes only the second source's extra cent to `0.00`. Its different line decomposition then agrees exactly with the first source, so a correctly cited answer for `9007199254740992.00` exits 0. Claiming the extra cent now exits 1 with only `total_mismatch`. This checks both conflict selection and exact answer comparison, rather than always rewarding abstention for large inputs.
+
+The example is within the existing monetary string bound and uses the fixed UTC clock. It adds no bundled scenario/control and makes no real financial decision. This is complementary coverage of existing behavior; the evaluator policy is unchanged.
 
 ## Run the EUR agreement example
 

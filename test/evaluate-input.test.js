@@ -109,6 +109,46 @@ test('CLI requires abstention and complete citations for conflicting current tot
   });
 });
 
+test('CLI preserves a one-cent source conflict above safe integer precision and accepts exact recomputed agreement', () => {
+  const path = fileURLToPath(new URL('../examples/large-total-conflict.json', import.meta.url));
+  const input = JSON.parse(readFileSync(path, 'utf8'));
+  const firstTotal = '9007199254740992.00';
+  const secondTotal = '9007199254740992.01';
+  // Demonstrate the lossy conversion this regression guards against; do not use it for money.
+  assert.equal(Number(firstTotal), Number(secondTotal));
+
+  const accepted = invoke([path]);
+  assert.equal(accepted.status, 0);
+  assert.equal(accepted.stderr, '');
+  assert.deepEqual(JSON.parse(accepted.stdout), {
+    valid: true, errors: [], requiredOutcome: 'abstain'
+  });
+
+  // Both citations remain present; selecting either source must fail on outcome alone.
+  const answer = total => ({ ...input.candidate, outcome: 'answer', total, currency: 'USD', refund: 'denied' });
+  for (const total of [firstTotal, secondTotal]) {
+    const picked = invoke(['-'], JSON.stringify({ ...input, candidate: answer(total) }));
+    assert.equal(picked.status, 1);
+    assert.equal(picked.stderr, '');
+    assert.deepEqual(JSON.parse(picked.stdout), {
+      valid: false, errors: ['outcome_mismatch'], requiredOutcome: 'abstain'
+    });
+  }
+
+  // Remove only the extra cent: different line decompositions now agree exactly.
+  input.evidence[1].lines[1].unitPrice = '0.00';
+  for (const [total, status, errors] of [
+    [firstTotal, 0, []], [secondTotal, 1, ['total_mismatch']]
+  ]) {
+    const result = invoke(['-'], JSON.stringify({ ...input, candidate: answer(total) }));
+    assert.equal(result.status, status);
+    assert.equal(result.stderr, '');
+    assert.deepEqual(JSON.parse(result.stdout), {
+      valid: status === 0, errors, requiredOutcome: 'answer'
+    });
+  }
+});
+
 test('CLI supports EUR answers and abstains on equal totals with conflicting source currencies', () => {
   const path = fileURLToPath(new URL('../examples/eur-answer.json', import.meta.url));
   const input = JSON.parse(readFileSync(path, 'utf8'));
