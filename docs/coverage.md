@@ -2,7 +2,7 @@
 
 Use this map to find an existing check before adding a fixture or regression. It describes the assertions actually exercised by the checked-in cases and tests; it is not an instrumented branch-coverage report or a model benchmark.
 
-The rules live in [evaluate.js](../src/evaluate.js). The eight bundled scenarios and their 17 response controls live in [cases.js](../fixtures/cases.js). Focused checks live in [evaluate.test.js](../test/evaluate.test.js) and [evaluate-input.test.js](../test/evaluate-input.test.js). Standalone JSON examples are exercised through the same evaluator by the CLI tests; they do not increase the bundled scenario/control counts.
+The rules live in [evaluate.js](../src/evaluate.js). The eight bundled scenarios and their 17 response controls live in [cases.js](../fixtures/cases.js). Focused checks live in [evaluate.test.js](../test/evaluate.test.js), [validation-limits.test.js](../test/validation-limits.test.js) and [evaluate-input.test.js](../test/evaluate-input.test.js). Standalone JSON examples are exercised through the same evaluator by the CLI tests; they do not increase the bundled scenario/control counts.
 
 ## Map rules to checks
 
@@ -89,7 +89,24 @@ Update this map when the checks change. Update `results/eval-results.json` only 
 
 `CLI handled reports omit input payload markers across accepted, rejected and malformed inputs` checks the fixed output contract with a synthetic marker present in valid identifiers, extra fields, and broken JSON. This guards report output only: it does not erase or anonymize input files, shell history, or other programs' logs. The ready-to-run [wrong-total example](../examples/wrong-total.json) demonstrates exit 1 without changing the accepted fixture.
 
+## Pair accepted and rejected size boundaries
+
+```sh
+node --test test/validation-limits.test.js
+```
+
+These checks exercise the documented caps with otherwise valid synthetic evidence and responses. Each accepted maximum is paired with the next integer above it; expected totals are explicit decimal strings. The evaluator's limits and policy are unchanged.
+
+| Boundary | Supported control | Rejected control |
+| --- | --- | --- |
+| Quantity | 1,000,000 at USD 0.01 totals USD 10000.00 | 1,000,001 with a correctly calculated total: `invalid_evidence` |
+| Lines per snapshot | Ten USD 0.01 lines total USD 0.10 | Eleven lines with a correctly calculated total: `invalid_evidence` |
+| Snapshot count | Twenty agreeing sources with all twenty citations | Twenty-one sources with a schema-valid twenty-citation response: `invalid_evidence` |
+| Citation count | Twenty unique pairs exactly match twenty snapshots | Twenty-one unique pairs against twenty valid snapshots: `invalid_candidate` |
+
+Oversized evidence/candidates fail schema validation with `requiredOutcome: null`; matching arithmetic does not make an oversized input valid. A separate control omits one of twenty citations: nineteen pairs fit the schema, so the result is instead `citations_mismatch` with required outcome `answer`. The twenty-source positive control also checks that these are alternative agreeing snapshots, not twenty purchases whose totals should be added together.
+
 ## Remaining coverage limits
 
-- The exact upper limits and just-over-limit combinations for quantity, line count, and snapshot count are not comprehensively paired. Monetary representation has a maximum/next-cent regression, but exhaustive combinations of amounts, quantities, and limits are not covered.
+- Quantity, line count, snapshot count and citation count now have isolated maximum/next-integer checks; monetary representation has a maximum/next-cent regression. Their cross-combinations, other identifier/schema boundaries and exhaustive combinations of amounts and quantities are not covered.
 - This manual map establishes no coverage percentage, exhaustive input guarantee, or correctness proof. All examples are synthetic; consistent fabricated data could pass. Tests do not establish upstream truth, source authenticity, real model accuracy, or production readiness.
