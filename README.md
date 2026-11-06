@@ -6,6 +6,8 @@ The focused core recomputes exact monetary totals from line items, checks curren
 
 See [choosing checks](docs/choosing-checks.md) for the structured-input contract, related-work distinctions, and a runnable comparison immediately before, at and after expiry and maximum age.
 
+For a portable review of accepted, inconsistent and invalid-input responses, assemble the [six-file CLI replay subset](docs/minimal-replay.md).
+
 ## Run locally
 
 Requires Node.js 22 or later. No package install, dependencies, credentials, APIs, or network access are needed. From the project folder:
