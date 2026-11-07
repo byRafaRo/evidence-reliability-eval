@@ -135,6 +135,20 @@ For choosing checks, interpreting failures, reviewing changed artifacts and trac
 
 `src/evaluate.js` exports `evaluate(evidence, candidate, options)`. Inputs are plain JSON-shaped data. `fixtures/cases.js` contains all evidence and candidate fixtures; `src/run.js` compares actual results with the expected error lists. `test/evaluate.test.js` exercises controls, boundary conditions, malformed inputs, and harness mismatch detection.
 
+### Interface boundaries
+
+Choose the entry point whose contract matches the caller:
+
+| Entry point | Input | Result and boundary |
+| --- | --- | --- |
+| `evaluate(evidence, candidate, options)` | Separate already-parsed values | Returns `{ valid, errors, requiredOutcome }`. It validates the evidence/response schema but does not read files, decode UTF-8, parse JSON, enforce the CLI's 1 MiB byte limit, or assign process exit codes. |
+| `node src/evaluate-input.js <path-or->` | One UTF-8 JSON envelope containing `evidence`, `candidate` and optional `options` | Adds bounded input reading and envelope validation. Exit 0/1 results go to stdout; exit 2 errors go to stderr. `expectedErrors` is not an accepted input field. |
+| `node src/run.js` | The curated bundled scenarios and their expected-error labels | Prints a report with per-control `matched` results. Exit 0 means expectations matched, including intentional rejections; it does not mean every candidate was valid. |
+
+The recorded `results/eval-results.json` and CLI result JSON are outputs, not replay inputs. Feeding either directly to the single-input CLI produces `invalid_input`: neither contains the required evidence/candidate envelope. Keep the original synthetic input when reproducing a decision; the compact result does not contain the evidence needed to reconstruct it.
+
+These are standalone local contracts, not a framework scoring or adapter API. Matching JSON field names or translating an exit code alone does not establish compatibility with another tool. Node.js 22+ is the declared runtime requirement; the dated verification above covers Node.js v24.15.0 on Windows only. It does not establish that every supported runtime, operating system or external integration was tested.
+
 The evaluation clock defaults to **2030-06-01T12:00:00.000Z**. Callers can supply an explicit `now` and `subject`; host time is never consulted. Dates must be real calendar dates in canonical `YYYY-MM-DDTHH:mm:ss.sssZ` form. Future observations and empty/reversed validity intervals are invalid inputs. Expiry is exclusive: `now >= expiresAt` requires refresh. Age is inclusive: exactly 60 minutes is accepted, and 60 minutes plus one millisecond requires refresh. Tests cover both sides of expiry and freshness boundaries.
 
 Evidence contains one requested subject, a source/version pair, observation and expiry timestamps, currency, line items, and a cancellation/refund rule. That rule is a deliberately coarse `allowed`, `denied`, or `null`; it represents no real contract or legal entitlement. All supplied snapshots must be cited with exact source and version, including stale or conflicting snapshots. Duplicate source/version pairs are invalid. Citation order is irrelevant.
