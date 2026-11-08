@@ -89,6 +89,19 @@ Update this map when the checks change. Update `results/eval-results.json` only 
 
 `CLI handled reports omit input payload markers across accepted, rejected and malformed inputs` checks the fixed output contract with a synthetic marker present in valid identifiers, extra fields, and broken JSON. This guards report output only: it does not erase or anonymize input files, shell history, or other programs' logs. The ready-to-run [wrong-total example](../examples/wrong-total.json) demonstrates exit 1 without changing the accepted fixture.
 
+## Distinguish missing policy from source conflict
+
+The core regression `missing refund policy distinguishes agreement from conflict regardless of source order` keeps totals, currencies, timestamps and complete citations consistent while varying only the two declared refund values:
+
+| Source policies | Required outcome |
+| --- | --- |
+| `null` / `null` | `unknown` |
+| `null` / `denied` | `abstain` |
+| `allowed` / `null` | `abstain` |
+| `allowed` / `allowed` | `answer` with the agreed rule |
+
+Both source orders must produce the same decision. The test accepts the supported response and rejects a different uncertainty outcome with only `outcome_mismatch`; the agreeing known-rule control also ensures the evaluator can still support an answer. Missing information is not silently converted to a denial or used to select one source. This exercises the existing local conflict-before-missing-policy rule, not a general policy for resolving real contracts or authenticating sources.
+
 ## Pair accepted and rejected size boundaries
 
 ```sh

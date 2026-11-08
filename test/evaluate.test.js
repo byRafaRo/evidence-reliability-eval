@@ -98,6 +98,29 @@ test('wrong refund claim is rejected when policy is known', () => {
   assert.deepEqual(evaluate([freshQuote()], response('answer', { refund: 'allowed' })).errors, ['refund_mismatch']);
 });
 
+test('missing refund policy distinguishes agreement from conflict regardless of source order', () => {
+  for (const [first, second, requiredOutcome] of [
+    [null, null, 'unknown'], [null, 'denied', 'abstain'],
+    ['allowed', null, 'abstain'], ['allowed', 'allowed', 'answer']
+  ]) {
+    const sources = [{ ...freshQuote(), refund: first },
+      { ...freshQuote(), source: 'catalog-b', refund: second }];
+    for (const evidence of [sources, [...sources].reverse()]) {
+      const citations = evidence.map(({ source, version }) => ({ source, version }));
+      const supported = response(requiredOutcome, {
+        citations, refund: requiredOutcome === 'answer' ? first : null
+      });
+      assert.deepEqual(evaluate(evidence, supported), {
+        valid: true, errors: [], requiredOutcome
+      });
+      const otherOutcome = requiredOutcome === 'unknown' ? 'abstain' : 'unknown';
+      assert.deepEqual(evaluate(evidence, response(otherOutcome, { citations })), {
+        valid: false, errors: ['outcome_mismatch'], requiredOutcome
+      });
+    }
+  }
+});
+
 test('stale evidence takes precedence over conflict and missing policy', () => {
   const evidence = [freshQuote(), { ...freshQuote(), source: 'catalog-b', refund: null, expiresAt: FIXED_NOW }];
   const candidate = response('refresh_required', { citations: evidence.map(({ source, version }) => ({ source, version })) });
