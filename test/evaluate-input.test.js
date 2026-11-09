@@ -198,6 +198,23 @@ test('CLI rejects malformed encoding, JSON, envelope, and evaluator inputs with 
   ]) expectInputError(invoke(['-'], input), code);
 });
 
+test('CLI characterizes duplicate JSON keys as last-value-wins rather than duplicate detection', () => {
+  const source = JSON.stringify(example());
+  const member = '"total":"0.50"';
+  assert.equal(source.split(member).length, 2);
+  // Submit raw text: parsing/stringifying here would erase the duplicates before the CLI sees them.
+  for (const [replacement, status, valid, errors] of [
+    ['"total":"0.51","total":"0.50"', 0, true, []],
+    ['"total":"0.50","total":"0.51"', 1, false, ['total_mismatch']],
+    ['"total":"0.51","to\\u0074al":"0.50"', 0, true, []]
+  ]) {
+    const result = invoke(['-'], source.replace(member, replacement));
+    assert.equal(result.status, status);
+    assert.equal(result.stderr, '');
+    assert.deepEqual(JSON.parse(result.stdout), { valid, errors, requiredOutcome: 'answer' });
+  }
+});
+
 test('CLI help, usage, and file errors are explicit and never expose input paths', () => {
   const help = invoke(['--help']);
   assert.equal(help.status, 0);

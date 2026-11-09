@@ -25,7 +25,7 @@ npm run eval
 
 Both commands exit with code 0 on success. The eval exits with code 1 if any actual validity/error-code result differs from its declared expectation. Intentionally rejected candidates are expected eval outcomes; they are **not unit-test failures**. A test deliberately mislabels a control to prove that the harness detects a mismatch.
 
-Actual verification on 2026-11-08, Node.js v24.15.0: **87 tests passed, 0 failed, 0 skipped**, including ten CLI regression tests; bundled eval: **8 scenarios, 17 controls, 8 accepted, 9 rejected as intended, 0 mismatches**. See `results/eval-results.json` for every candidate decision. Test timings vary; the eval JSON is deterministic. This was local verification on Windows, not a CI or cross-platform run.
+Actual verification on 2026-11-09, Node.js v24.15.0: **88 tests passed, 0 failed, 0 skipped**, including eleven CLI regression tests; bundled eval: **8 scenarios, 17 controls, 8 accepted, 9 rejected as intended, 0 mismatches**. See `results/eval-results.json` for every candidate decision. Test timings vary; the eval JSON is deterministic. This was local verification on Windows, not a CI or cross-platform run.
 
 Actual summary from `npm run eval` (per-control results omitted):
 
@@ -96,7 +96,7 @@ The top-level object requires `evidence` and `candidate`, and permits only one o
 
 The input limit is **1 MiB (1,048,576 UTF-8 bytes)**. Only regular files or standard input are supported; input is read without modification. Pass `-` instead of a file path to read from standard input until EOF. Use `node src/evaluate-input.js <path>` directly when a script needs JSON without npm's command headers. Error reports contain stable codes and do not echo input contents or file paths. Run `node src/evaluate-input.js --help` for usage.
 
-For error-code recovery steps, schema bounds, and the distinction between exact arithmetic and a representable response total, see [Input limits and error recovery](docs/input-errors.md).
+For error-code recovery steps, schema bounds, and the distinction between exact arithmetic and a representable response total, see [Input limits and error recovery](docs/input-errors.md). Its [duplicate-member limitation](docs/input-errors.md#parsing-limitation-duplicate-object-member-names) explains how standard JSON parsing can discard an earlier contradictory value before validation.
 
 This remains an offline consistency checker for synthetic structured data. It does not call a model or verify upstream source truth. The bundled eval's expected rejections and this command's failure exit codes serve different purposes.
 

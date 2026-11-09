@@ -34,6 +34,20 @@ The output never echoes input contents or file paths. An error code names a cate
 
 For the complete field relationships and outcome precedence, see the [README contract](../README.md#contract-and-policy). Schema validation runs before consistency checks, so changing only the outcome to `abstain` cannot make malformed evidence valid.
 
+## Parsing limitation: duplicate object member names
+
+The CLI validates the object produced by standard `JSON.parse`, not every claim in the original JSON text. Duplicate member names are not rejected: only the last value survives parsing. With the accepted example's evidence totaling USD 0.50, these fragments inside its candidate have different results:
+
+| Raw candidate member fragment | Value that reaches validation | CLI result |
+| --- | --- | --- |
+| `"total":"0.51","total":"0.50"` | `"0.50"` | Exit 0, valid answer |
+| `"total":"0.50","total":"0.51"` | `"0.51"` | Exit 1, `total_mismatch` |
+| `"total":"0.51","to\u0074al":"0.50"` | `"0.50"` | Exit 0, valid answer; the escaped name also decodes to `total` |
+
+These are object fragments, not complete CLI inputs. The raw-text stdin regression in [evaluate-input.test.js](../test/evaluate-input.test.js) records this limitation; it does not establish that duplicate-bearing input is safe or desirable. A future duplicate-rejecting parser would require updating this characterization deliberately.
+
+Use unique member names when producing synthetic fixtures. If a workflow requires rejecting ambiguous source text, validate that requirement before this CLI; parsing and reserializing first cannot recover the discarded members. The same limitation can affect envelope or evidence fields, not only totals. Duplicate citation entries and duplicate source/version pairs are separate schema checks on arrays and remain rejected. No duplicate-key detector is implemented here, and a passing result does not audit contradictory members discarded during parsing.
+
 ## Exit 1: response contradicts valid declared evidence
 
 | Error | Meaning |
